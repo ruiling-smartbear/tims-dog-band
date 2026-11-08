@@ -112,6 +112,7 @@ header{text-align:center;position:relative;z-index:3}
 .marquee:not(.lit) .sign{background-color:#cfc5b2}
 .marquee:not(.lit) .sign > *{filter:brightness(.5) saturate(.55)}
 .sign > *{transition:filter .6s}
+.marquee:not(.lit) .sign{animation:flicker 5s infinite}
 .marquee.lit{box-shadow:0 0 44px rgba(255,214,120,.45)}
 .marquee.lit .sign h1{filter:drop-shadow(0 0 14px rgba(255,220,140,.55))}
 .playing .marquee.lit{animation:chase .5s steps(2) infinite}
@@ -145,6 +146,7 @@ h1 .name span:nth-child(4){animation-delay:.3s}h1 .name span:nth-child(5){animat
 .btn:active{transform:translate(2px,3px);box-shadow:0 0 0 var(--ink)}
 .btn:focus-visible{outline:3px dashed var(--sun);outline-offset:4px}
 .nowplaying{min-height:4.2rem;margin-top:10px}
+.controls:not(:has(.btn:not([hidden]))){display:none}
 .round{display:inline-block;margin:0;padding:2px 14px 0;border:2px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);font-size:1.1rem;transform:rotate(-2deg)}
 [hidden]{display:none!important}
 .lyric{min-height:1.6em;font-size:1.55rem;margin:6px 0 0;text-align:center;color:var(--bulb)}
@@ -207,7 +209,7 @@ h1 .name span:nth-child(4){animation-delay:.3s}h1 .name span:nth-child(5){animat
 .badge{position:absolute;z-index:3;top:4px;right:6px;background:var(--paper);color:var(--ink);border:2px solid var(--ink);
   border-radius:999px;padding:1px 9px 0;font-size:.9rem;transform:rotate(6deg)}
 .dog .badge{display:none}
-.dog.muted .badge{display:block}
+.dog.muted .badge{display:block;animation:doze 2.6s ease-in-out infinite;animation-delay:var(--dly,0s)}
 .dog.muted img{filter:grayscale(.85) brightness(.42);animation-play-state:paused}
 .dog.muted .inst{opacity:.25}
 .dog.muted .label{color:var(--stage-muted)}
@@ -240,6 +242,8 @@ h1 .name span:nth-child(4){animation-delay:.3s}h1 .name span:nth-child(5){animat
   animation:float 1.4s ease-out forwards;font-family:serif;text-shadow:1px 1px 0 var(--ink)}
 
 @keyframes popin{from{transform:scale(.3) rotate(-6deg);opacity:0}to{transform:scale(1) rotate(-2deg);opacity:1}}
+@keyframes flicker{0%,82%,100%{filter:none}84%{filter:brightness(1.35)}86%{filter:none}88%{filter:brightness(1.5)}91%{filter:none}}
+@keyframes doze{0%,100%{transform:translateY(0) rotate(6deg);opacity:1}50%{transform:translateY(-5px) rotate(-4deg);opacity:.7}}
 @keyframes chase{to{background-position:11px 0,0 0}}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-4px) rotate(1.2deg)}}
 @keyframes wiggle{from{transform:rotate(-10deg)}to{transform:rotate(8deg) translateY(-3px)}}
@@ -302,12 +306,12 @@ h1 .name span:nth-child(4){animation-delay:.3s}h1 .name span:nth-child(5){animat
     </div>
     <p class="welcome" id="welcome" hidden>Welcome Tim’s Dog Band</p>
     <div class="controls">
-      <button class="btn" id="play" type="button">✨ Light up the sign</button>
+      <button class="btn" id="play" type="button" hidden>▶ Play</button>
       <button class="btn alt" id="all" type="button" hidden>Wake up everyone</button>
     </div>
     <div class="nowplaying">
       <p class="round" id="round" hidden></p>
-      <p class="lyric" id="lyric" aria-live="polite">Tap the sign to open the show</p>
+      <p class="lyric" id="lyric" aria-live="polite"></p>
     </div>
   </header>
   <div class="band" id="band" aria-label="The band on stage">
@@ -717,9 +721,10 @@ function openShow(){
 }
 function refreshUI(){
   const asleep=BAND.filter(d=>muted.has(d.key)).length;
-  playBtn.textContent = !opened ? "✨ Light up the sign" : playing ? "■ Stop the band" : "▶ Play";
+  playBtn.hidden = !opened;  // before the sign is lit, the sign itself is the only thing to tap
+  playBtn.textContent = playing ? "■ Stop the band" : "▶ Play";
   allBtn.hidden = !opened || asleep===0;
-  if(!playing) lyric.textContent = !opened ? "Tap the sign to open the show" : asleep===BAND.length ? "Tap a dog to wake it up" : "";
+  if(!playing) lyric.textContent = "";
 }
 playBtn.addEventListener("click",()=>{
   if(!opened) return openShow();
