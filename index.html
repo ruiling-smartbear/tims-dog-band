@@ -106,13 +106,17 @@ header{text-align:center;position:relative;z-index:3}
 }
 .marquee{cursor:pointer;transition:box-shadow .6s}
 .marquee:not(.lit){box-shadow:none;background:radial-gradient(circle,#7d6b48 0 3.5px,var(--ink) 4.5px 5.5px,transparent 6px) 0 0/22px 22px,#4f0c1c}
-.sign{transition:background-color .6s,filter .6s}
-.marquee:not(.lit) .sign{background-color:#cfc5b2}
-.marquee:not(.lit) .sign > *{filter:brightness(.5) saturate(.55)}
-.sign > *{transition:filter .6s}
-.marquee:not(.lit) .sign{animation:flicker 5s infinite}
+/* dim = a smoky layer over the sign; lit = the layer fades away and the letters glow (no CSS filters, so phones agree) */
+.sign{position:relative}
+.sign::after{content:"";position:absolute;inset:0;border-radius:inherit;background:rgba(34,22,44,.55);pointer-events:none;transition:opacity .7s}
+.marquee:not(.lit) .sign::after{animation:flicker 5s infinite}
+.marquee.lit .sign::after{opacity:0}
 .marquee.lit{box-shadow:0 0 44px rgba(255,214,120,.45)}
-.marquee.lit .sign h1{filter:drop-shadow(0 0 14px rgba(255,220,140,.55))}
+.marquee.lit .sign{box-shadow:inset 0 0 36px rgba(255,214,140,.55)}
+.marquee.lit .sign h1{animation:neon 1.1s linear both;
+  text-shadow:var(--drop),0 0 12px rgba(255,160,195,.95),0 0 30px rgba(255,93,143,.6)}
+.marquee.lit .sign h1 .name{text-shadow:var(--drop),0 0 12px rgba(124,200,255,1),0 0 30px rgba(124,200,255,.65)}
+@keyframes neon{0%{opacity:.4}8%{opacity:1}14%{opacity:.45}22%{opacity:1}34%{opacity:.6}42%,100%{opacity:1}}
 .playing .marquee.lit{animation:chase .5s steps(2) infinite}
 .sign{
   background-color:var(--paper);border:3px solid var(--ink);border-radius:16px;
@@ -123,12 +127,13 @@ h1{
   font-family:var(--display);font-weight:400;margin:0;line-height:.95;
   font-size:clamp(2.3rem,7.6vw,5.4rem);text-wrap:balance;color:var(--pink);
   -webkit-text-stroke:3px var(--ink);paint-order:stroke fill;
-  text-shadow:4px 5px 0 var(--ink);
+  --drop:4px 5px 0 var(--ink);text-shadow:var(--drop);
 }
 h1 .name{display:block;color:var(--sky);font-size:1.25em;transform:rotate(-3deg);margin-top:.08em}
-h1 .name span{display:inline-block;animation:hop 1.4s ease-in-out infinite}
-h1 .name span:nth-child(2){animation-delay:.1s}h1 .name span:nth-child(3){animation-delay:.2s}
-h1 .name span:nth-child(4){animation-delay:.3s}h1 .name span:nth-child(5){animation-delay:.4s}
+h1 .name span{display:inline-block}
+.marquee.lit h1 .name span{animation:hop 1.4s ease-in-out infinite}
+.marquee.lit h1 .name span:nth-child(2){animation-delay:.1s}.marquee.lit h1 .name span:nth-child(3){animation-delay:.2s}
+.marquee.lit h1 .name span:nth-child(4){animation-delay:.3s}.marquee.lit h1 .name span:nth-child(5){animation-delay:.4s}
 
 .welcome{margin:16px 0 0;font-family:var(--display);font-size:clamp(1.6rem,4.4vw,2.6rem);line-height:1.05;color:var(--sun);
   -webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:3px 4px 0 var(--ink);animation:popin .6s cubic-bezier(.2,1.6,.4,1) both}
@@ -248,7 +253,7 @@ h1 .name span:nth-child(4){animation-delay:.3s}h1 .name span:nth-child(5){animat
   animation:float 1.4s ease-out forwards;font-family:serif;text-shadow:1px 1px 0 var(--ink)}
 
 @keyframes popin{from{transform:scale(.3) rotate(-6deg);opacity:0}to{transform:scale(1) rotate(-2deg);opacity:1}}
-@keyframes flicker{0%,82%,100%{filter:none}84%{filter:brightness(1.35)}86%{filter:none}88%{filter:brightness(1.5)}91%{filter:none}}
+@keyframes flicker{0%,82%,100%{opacity:1}84%{opacity:.55}86%{opacity:1}88%{opacity:.4}91%{opacity:1}}
 @keyframes doze{0%,100%{transform:translateY(0) rotate(6deg);opacity:1}50%{transform:translateY(-5px) rotate(-4deg);opacity:.7}}
 @keyframes chase{to{background-position:11px 0,0 0}}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-4px) rotate(1.2deg)}}
@@ -267,7 +272,7 @@ h1 .name span:nth-child(4){animation-delay:.3s}h1 .name span:nth-child(5){animat
   .marquee{padding:8px;border-radius:18px;background-size:16px 16px,auto}
   .sign{padding:8px 10px 12px;border-radius:12px}
   .eyebrow{font-size:.95rem;margin-bottom:2px}
-  h1{font-size:clamp(1.5rem,8.1vw,2.3rem);white-space:nowrap;-webkit-text-stroke:2px var(--ink);text-shadow:2px 3px 0 var(--ink)}
+  h1{font-size:clamp(1.5rem,8.1vw,2.3rem);white-space:nowrap;-webkit-text-stroke:2px var(--ink);--drop:2px 3px 0 var(--ink);text-shadow:var(--drop)}
   .welcome{font-size:1.3rem;margin-top:8px;-webkit-text-stroke:1.5px var(--ink);text-shadow:2px 3px 0 var(--ink)}
   .controls{margin-top:8px;gap:8px}
   .btn{font-size:1rem;padding:5px 14px 4px;border-width:2.5px;box-shadow:2px 3px 0 var(--ink)}
@@ -418,7 +423,7 @@ function buildRound(style){
   MEL.forEach(([b,d,m])=>{
     const c=chordAt(b), last=b===22;
     if(fin&&last){ add("harp",b,3,m,1.1); add("violin",b,3,below(m,c),1.1); return; }
-    if(serenade){ add("violin",b,d,m,1.3); if(b>=18) add("flute",b,d,above(m,c),.5); return; }
+    if(serenade){ add("violin",b,d,m,.9); if(b>=18) add("flute",b,d,above(m,c),.5); return; }
     if(style!=="straight") add("harp",b,d,m);   // Big Leo and his harp join from round 3
     if(style==="straight"){ add("flute",b,d,m,1.1); add("violin",b,d,below(m,c)); }
     if(big){ add("trumpet",b,d,m-12,.85); add("flute",b,d,above(m,c),.9); add("violin",b,d,below(m,c)); }
@@ -532,7 +537,7 @@ function buildGraph(){ // ctx must exist; works for live and offline contexts
   verb.buffer=ir;
   master.connect(tone); tone.connect(out); tone.connect(verb); verb.connect(wet); wet.connect(out); out.connect(ctx.destination);
   verbIn=verb;
-  const SEND={violin:.5,harp:.45,flute:.2}; // extra hall for the airy voices of the band
+  const SEND={violin:.35,harp:.45,flute:.2}; // extra hall for the airy voices of the band
   trackGain={}; BAND.forEach(d=>{const g=ctx.createGain(); g.gain.value=muted.has(d.key)?0:1; g.connect(master); trackGain[d.key]=g;
     if(SEND[d.key]){ const s=ctx.createGain(); s.gain.value=SEND[d.key]; g.connect(s); s.connect(verbIn); } });
   noiseBuf=ctx.createBuffer(1,sr,sr); const ch=noiseBuf.getChannelData(0); for(let i=0;i<ch.length;i++) ch[i]=Math.random()*2-1;
@@ -592,7 +597,7 @@ function plucked(dest,t,dur,m,v){
 function bowed(dest,t,dur,m,v){
   const f0=mtof(m), long=dur>.6, a=long?.2:.07, end=t+dur+.45;
   const f=ctx.createBiquadFilter(); f.type="lowpass"; f.Q.value=.6;
-  f.frequency.setValueAtTime(1300,t); f.frequency.linearRampToValueAtTime(long?2600:2200,t+Math.min(dur,.6));
+  f.frequency.setValueAtTime(1100,t); f.frequency.linearRampToValueAtTime(long?2000:1700,t+Math.min(dur,.6));
   const g=ctx.createGain(), pk=.12*v;
   g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(pk*.8,t+a);
   if(long){ g.gain.linearRampToValueAtTime(pk,t+dur*.55); g.gain.linearRampToValueAtTime(pk*.85,t+dur); }
@@ -703,7 +708,7 @@ function start(){
   unlockAudio();
   if(!ensureCtx()){ lyric.textContent="This browser can't play sound, but the band is still very proud."; return; }
   ctx.resume(); master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setValueAtTime(.75,ctx.currentTime);
-  playing=true; theater.classList.add("playing"); lyric.textContent="";
+  playing=true; started=true; theater.classList.add("playing"); lyric.textContent="";
   events=[]; words=[]; scheduleRound(0,ctx.currentTime+.12);
   timer=setInterval(()=>{ if(ctx.currentTime>nextStart-.6) scheduleRound(nextRound,nextStart,true); },100);
   raf=requestAnimationFrame(tick);
@@ -718,7 +723,7 @@ function stop(){
 }
 
 /* ---------------- the show: closed → sign lit, dogs walk on asleep → wake them one by one ---------------- */
-let opened=false;
+let opened=false, started=false;
 function openShow(){
   if(opened) return; opened=true;
   unlockAudio();
@@ -728,9 +733,10 @@ function openShow(){
 }
 function refreshUI(){
   const asleep=BAND.filter(d=>muted.has(d.key)).length;
-  playBtn.hidden = !opened;  // before the sign is lit, the sign itself is the only thing to tap
+  // no buttons until the music has started: the sign, then the dogs, are the only things to tap
+  playBtn.hidden = !started;
   playBtn.textContent = playing ? "■ Stop the band" : "▶ Play";
-  allBtn.hidden = !opened || asleep===0;
+  allBtn.hidden = !playing || asleep===0;
   if(!playing) lyric.textContent = "";
 }
 playBtn.addEventListener("click",()=>{
