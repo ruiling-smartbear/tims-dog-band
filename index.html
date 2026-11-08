@@ -20,7 +20,7 @@ img{max-width:100%}
    marquee sign carries the title; twelve dogs stand on wooden risers; footlights and a wooden stage
    front sit at the bottom. One deliberate look in both themes. */
 :root{
-  --table:#f6c9d6;
+  --table:#9fd6ff;
   --paper:#fffaf0;
   --ink:#1d1a24;
   --pink:#ff5d8f;
@@ -49,8 +49,6 @@ img{max-width:100%}
 html,body{min-height:100%}
 body{
   background:var(--table);
-  background-image:radial-gradient(var(--paper) 1.5px,transparent 1.6px);
-  background-size:22px 22px;
   color:var(--ink);font-family:var(--hand);
   padding-left:max(16px,env(safe-area-inset-left,0px));
   padding-right:max(16px,env(safe-area-inset-right,0px));
@@ -147,7 +145,15 @@ h1 .name span:nth-child(4){animation-delay:.3s}h1 .name span:nth-child(5){animat
 .btn:focus-visible{outline:3px dashed var(--sun);outline-offset:4px}
 .nowplaying{min-height:4.2rem;margin-top:10px}
 .controls:not(:has(.btn:not([hidden]))){display:none}
-.round{display:inline-block;margin:0;padding:2px 14px 0;border:2px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);font-size:1.1rem;transform:rotate(-2deg)}
+.round{display:inline-block;margin:0;padding:2px 14px 0;border:2px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);font-size:1.1rem;
+  --tilt:-2deg;transform:rotate(var(--tilt));box-shadow:2px 3px 0 var(--ink)}
+.round[data-r="0"]{background:#c9b6ff;--tilt:-3deg}
+.round[data-r="1"]{background:var(--sun);--tilt:2deg}
+.round[data-r="2"]{background:var(--mint);--tilt:-2deg}
+.round[data-r="3"]{background:var(--pink);--tilt:3deg}
+.round[data-r="4"]{background:var(--sky);--tilt:-1.5deg}
+.round.pop{animation:roundpop .55s cubic-bezier(.2,1.6,.4,1)}
+@keyframes roundpop{from{transform:scale(.4) rotate(calc(var(--tilt) * -3));opacity:0}to{transform:rotate(var(--tilt));opacity:1}}
 [hidden]{display:none!important}
 .lyric{min-height:1.6em;font-size:1.55rem;margin:6px 0 0;text-align:center;color:var(--bulb)}
 
@@ -664,7 +670,8 @@ function tick(){
   while(events.length && events[0].t<=now){
     const e=events.shift();
     if(e.clear){ words=[]; lyric.textContent=""; }
-    else if(e.round!==undefined){ roundEl.textContent=ROUNDS[e.round].label; roundEl.hidden=false; }
+    else if(e.round!==undefined){ roundEl.textContent=ROUNDS[e.round].label; roundEl.dataset.r=e.round; roundEl.hidden=false;
+      roundEl.classList.remove("pop"); void roundEl.offsetWidth; roundEl.classList.add("pop"); }
     else if(e.syl){ if(e.syl==="Hap") words=[]; words.push(e.syl); lyric.textContent=tidy(words); }
     else if(e.key && !muted.has(e.key)){
       const el=dogEl[e.key], ms=performance.now();
